@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Timer Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+</head>
+<body>
+    <div class="container" id="authContainer">
+        <div class="auth-card">
+            <h1><i class="fas fa-clock"></i> Smart Timer Dashboard</h1>
+            <div class="auth-form">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> Имя пользователя</label>
+                    <input type="text" id="username" placeholder="Введите имя пользователя">
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Пароль</label>
+                    <input type="password" id="password" placeholder="Введите пароль">
+                </div>
+                <button id="loginBtn" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+                <div id="loginError" class="error-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard" id="dashboard" style="display: none;">
+        <header class="header">
+            <div class="header-left">
+                <h1><i class="fas fa-chart-line"></i> Статистика таймера</h1>
+                <p id="currentDate"></p>
+            </div>
+            <div class="header-right">
+                <button id="logoutBtn" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="controls">
+                <div class="period-selector">
+                    <h3><i class="fas fa-calendar-alt"></i> Период анализа</h3>
+                    <select id="periodSelect" class="select-control">
+                        <option value="day">Сегодня</option>
+                        <option value="week">Эта неделя</option>
+                        <option value="month" selected>Этот месяц</option>
+                        <option value="quarter">Квартал</option>
+                        <option value="year">Год</option>
+                        <option value="custom">Выбрать период</option>
+                    </select>
+                    <div id="customDateRange" class="date-range" style="display: none;">
+                        <input type="date" id="startDate" class="date-input">
+                        <span>по</span>
+                        <input type="date" id="endDate" class="date-input">
+                        <button id="applyDateRange" class="btn btn-small">Применить</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #4CAF50;">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalWorkTime">0 ч</h3>
+                        <p>Общее время работы</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #f44336;">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalMistakes">0</h3>
+                        <p>Всего ошибок</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #2196F3;">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="avgSessionTime">0 ч</h3>
+                        <p>Средняя сессия</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #FF9800;">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="efficiency">0%</h3>
+                        <p>Эффективность</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3><i class="fas fa-calendar-day"></i> Работа по дням</h3>
+                    <canvas id="dailyChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-pie"></i> Распределение по типам</h3>
+                    <canvas id="typeDistributionChart"></canvas>
+                </div>
+                <div class="chart-container full-width">
+                    <h3><i class="fas fa-history"></i> История сессий за период</h3>
+                    <canvas id="timelineChart"></canvas>
+                </div>
+                <div class="chart-container full-width">
+                    <h3><i class="fas fa-chart-area"></i> Продуктивность по времени суток</h3>
+                    <canvas id="hourlyChart"></canvas>
+                </div>
+                <div class="chart-container full-width">
+                    <h3><i class="fas fa-chart-line"></i> Тенденции эффективности</h3>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="detailed-stats">
+                <h3><i class="fas fa-table"></i> Подробная статистика</h3>
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="dailyTab">По дням</button>
+                    <button class="tab-btn" data-tab="weeklyTab">По неделям</button>
+                    <button class="tab-btn" data-tab="monthlyTab">По месяцам</button>
+                </div>
+                <div class="tab-content active" id="dailyTab">
+                    <table id="dailyStatsTable">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Время работы</th>
+                                <th>Сессии</th>
+                                <th>Ошибки</th>
+                                <th>Эффективность</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="tab-content" id="weeklyTab">
+                    <table id="weeklyStatsTable">
+                        <thead>
+                            <tr>
+                                <th>Неделя</th>
+                                <th>Время работы</th>
+                                <th>Сессии</th>
+                                <th>Ошибки</th>
+                                <th>Ср. эффективность</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="tab-content" id="monthlyTab">
+                    <table id="monthlyStatsTable">
+                        <thead>
+                            <tr>
+                                <th>Месяц</th>
+                                <th>Время работы</th>
+                                <th>Сессии</th>
+                                <th>Ошибки</th>
+                                <th>Ср. эффективность</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="events-list">
+                <h3><i class="fas fa-list-alt"></i> Последние события</h3>
+                <div class="events-filter">
+                    <button class="filter-btn active" data-type="all">Все</button>
+                    <button class="filter-btn" data-type="start">Start</button>
+                    <button class="filter-btn" data-type="stop">Stop</button>
+                    <button class="filter-btn" data-type="misstake">Ошибки</button>
+                </div>
+                <div id="eventsContainer">
+                    <!-- События будут загружены здесь -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
