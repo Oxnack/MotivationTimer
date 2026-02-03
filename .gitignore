@@ -7,6 +7,7 @@ micropython-1.27.0 (1)/
 
 config.py
 test.py
+esp1.py
 # C extensions
 *.so
 
