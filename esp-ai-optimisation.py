@@ -13,15 +13,15 @@ import os
 API_HOST = "http://192.168.0.9:8000"
 API_USERNAME = "admin"
 API_PASSWD = "1234"
-WIFI_SSID = "Keenetic-4568"
-WIFI_PASSWD = "rCYPpYmu"
+WIFI_SSID = "your-wifi-name"
+WIFI_PASSWD = "your-wifi-passwd"
 
 config = {
-    'API_HOST': "http://192.168.0.9:8000",
+    'API_HOST': "http://192.168.0.3:8000",
     'API_USERNAME': "admin",
     'API_PASSWD': "1234",
-    'WIFI_SSID': "Keenetic-4568",
-    'WIFI_PASSWD': "rCYPpYmu"
+    'WIFI_SSID': "your-wifi-name",
+    'WIFI_PASSWD': "your-wifi-passwd"
 }
 
 button_d1 = Pin(5, Pin.IN, Pin.PULL_UP)
