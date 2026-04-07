@@ -13,19 +13,23 @@ def connect_to_db():   # connect to db
 
 def find_user_by_username_passwd(username, passwd_hash):   # FIND user by requs
     conn = connect_to_db()
-    with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-        cursor.execute("SELECT * FROM users WHERE username = %s AND passwd_hash = %s", (username, passwd_hash,))
-        row = cursor.fetchone()
-        return row
-    conn.close()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM users WHERE username = %s AND passwd_hash = %s", (username, passwd_hash,))
+            row = cursor.fetchone()
+            return row
+    finally:
+        conn.close()
 
 def find_user_by_cookie_token(token):   # FIND user by token
     conn = connect_to_db()
-    with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-        cursor.execute("SELECT * FROM users WHERE cookie = %s", (token,))
-        row = cursor.fetchone()
-        return row
-    conn.close()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM users WHERE cookie = %s", (token,))
+            row = cursor.fetchone()
+            return row
+    finally:
+        conn.close()
 
 def user_cookie_token_update(username, token):   # Edit cookie users
     conn = connect_to_db()
@@ -45,11 +49,13 @@ def add_event(username, type, time):   # ADD event
 
 def select_user_events(username): #SELECT ALL events for user  
     conn = connect_to_db()
-    with conn.cursor(cursor_factory=RealDictCursor) as cursor:
-        cursor.execute("SELECT * FROM events WHERE username = %s", (username,))
-        row = cursor.fetchall()
-        return row
-    conn.close()
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT * FROM events WHERE username = %s", (username,))
+            row = cursor.fetchall()
+            return row
+    finally:
+        conn.close()
 
 # def transaction_status_update(discription, status):   # Edit dates users
 #     conn = connect_to_db()
