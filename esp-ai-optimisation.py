@@ -34,6 +34,7 @@ last_d2 = 1
 last_d3 = 1
 last_d4 = 1
 d2_press_time = 0
+last_conn_check = 0
 
 sta_if = network.WLAN(network.STA_IF)
 ap_if = network.WLAN(network.AP_IF)
@@ -281,6 +282,28 @@ def start_config_mode():
     print("START CONFIG PANEL MODE----->>>>>>>>>>")
     run_config_portal()
 
+def check_connectivity():
+    print("[CONN] WiFi: %s" % ("OK" if sta_if.isconnected() else "NO"))
+    s = socket.socket()
+    s.settimeout(3)
+    try:
+        s.connect(('8.8.8.8', 53))
+        print("[CONN] Google DNS: OK")
+    except:
+        print("[CONN] Google DNS: FAIL")
+    try:
+        s.close()
+    except:
+        pass
+    try:
+        import urequests as _ur
+        r = _ur.get(API_HOST, timeout=3)
+        r.close()
+        print("[CONN] Server: OK")
+    except:
+        print("[CONN] Server: FAIL")
+    gc.collect()
+
 def send_event(event_type):
     url = f"{API_HOST}/create_event?type={event_type}"
     headers = {"username": API_USERNAME, "passwd": API_PASSWD}
@@ -298,10 +321,11 @@ def send_event(event_type):
         return None
 
 def main():
-    connect_wifi()
     load_config()
+    connect_wifi()
     
-    global last_d1, last_d2, last_d3, last_d4, d2_press_time
+    
+    global last_d1, last_d2, last_d3, last_d4, d2_press_time, last_conn_check
     
     while True:
         d1 = button_d1.value()
@@ -342,6 +366,10 @@ def main():
         last_d3 = d3
         last_d4 = d4
         
+        if time.ticks_diff(time.ticks_ms(), last_conn_check) > 60000:
+            check_connectivity()
+            last_conn_check = time.ticks_ms()
+
         time.sleep(0.05)
         gc.collect()
 

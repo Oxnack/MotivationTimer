@@ -46,12 +46,38 @@ The system consists of three main components:
 ![System Schema](./images/schema.png)  
 *NOTE: the diagram is based on Arduino, but ESP8266 is connected similarly.*
 
-| Pin  | Function               |
-|------|------------------------|
-| D1   | Start                  |
-| D2   | Mistake                |
-| D3   | Stop                   |
-| D4   | Technical button (press to launch ESP web configurator) |
+### Pinout Table
+
+| ESP8266 Pin | GPIO | Connected Component | Function |
+|-------------|------|---------------------|----------|
+| D1 | GPIO5 | Button (momentary) | **Start** – begin a work session |
+| D2 | GPIO4 | Button (momentary) | **Stop** – short press: end session / **Reset** – long press (≥3s): reset timer |
+| D3 | GPIO0 | Button (momentary) | **Mistake** – log a distraction/procrastination event |
+| D4 | GPIO2 | Button (momentary) | **Config** – press to launch ESP web configurator (Access Point mode) |
+| D5 | GPIO14 | TM1637 Display (CLK) | Clock line for 4-digit 7-segment LED display |
+| D6 | GPIO12 | TM1637 Display (DIO) | Data I/O line for 4-digit 7-segment LED display |
+| 3.3V | — | TM1637 VCC | Display power (3.3V) |
+| GND | — | TM1637 GND | Common ground for display and buttons |
+| VIN / 5V | — | External PSU | 5V power input (USB or external adapter) |
+
+### Button Wiring
+
+All buttons are connected with **internal pull-up** resistors enabled in software (`Pin.PULL_UP`). Connect each button between the corresponding GPIO pin and **GND** – no external resistors required.
+
+```
+GPIOx  ────[ Button ]──── GND
+```
+
+### TM1637 Display Wiring
+
+```
+TM1637       ESP8266
+------       -------
+VCC    -->   3.3V
+GND    -->   GND
+CLK    -->   D5 (GPIO14)
+DIO    -->   D6 (GPIO12)
+```
 
 ---
 
